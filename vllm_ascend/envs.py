@@ -101,6 +101,12 @@ env_variables: dict[str, Callable[[], Any]] = {
     # `dispatch_gmm_combine_decode` can be used only for **decode node** moe layer
     # with W8A8. And MTP layer must be W8A8.
     "VLLM_ASCEND_ENABLE_FUSED_MC2": lambda: int(os.getenv("VLLM_ASCEND_ENABLE_FUSED_MC2", "0")),
+    # Whether to force MoE communication to use AllGather.
+    # Valid values: 0 disables the override, 1 enables it.
+    # Default: 0. Sensitive: no.
+    "VLLM_ASCEND_FORCE_ALLGATHER_MOE_COMM": lambda: bool(
+        int(os.getenv("VLLM_ASCEND_FORCE_ALLGATHER_MOE_COMM", "0"))
+    ),
     # Whether to enable balance scheduling in the v1 scheduler.
     # Platform validation: only PD-mixed mode (`kv_role='kv_both'` or no kv_transfer_config).
     # Not supported in PD-disaggregated mode (`kv_producer` / `kv_consumer` only).
