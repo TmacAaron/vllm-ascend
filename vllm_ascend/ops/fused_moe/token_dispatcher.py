@@ -30,6 +30,7 @@ from vllm.distributed.parallel_state import get_ep_group
 
 from vllm_ascend.ascend_config import get_ascend_config
 from vllm_ascend.device.device_op import DeviceOperator
+from vllm_ascend.device.mxfp_compat import FLOAT8_E8M0FNU_DTYPE
 from vllm_ascend.distributed.parallel_state import get_mc2_group
 from vllm_ascend.ops.fused_moe.comm_utils import async_all_to_all, gather_from_sequence_parallel_region
 from vllm_ascend.ops.fused_moe.moe_runtime_args import (
@@ -359,6 +360,7 @@ class TokenDispatcherWithAllGather(MoETokenDispatcher[MoEAllGatherCombineMetadat
             token_dispatch_input.quant.dispatch_with_quant and token_dispatch_input.quant.quant_type != QuantType.MXFP4
         )
         is_mxfp = token_dispatch_input.quant.is_mxfp
+        is_mxfp8_quant = token_dispatch_input.quant.is_mxfp8_quant
         hidden_states = token_dispatch_input.hidden_states
         topk_weights = token_dispatch_input.topk_weights
         topk_ids = token_dispatch_input.topk_ids
@@ -393,7 +395,9 @@ class TokenDispatcherWithAllGather(MoETokenDispatcher[MoEAllGatherCombineMetadat
         sorted_hidden_states, expanded_row_idx, expert_tokens, dynamic_scale = DeviceOperator.npu_moe_init_routing(
             hidden_states,
             topk_ids,
-            scale=dynamic_scale,
+            scale=dynamic_scale.view(FLOAT8_E8M0FNU_DTYPE)
+            if is_mxfp8_quant and dynamic_scale is not None
+            else dynamic_scale,
             active_num=num_tokens * self.top_k,
             expert_num=global_num_experts,
             expert_tokens_num_type=1,

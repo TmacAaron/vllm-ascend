@@ -706,7 +706,7 @@ class AscendSFAImpl(MLAAttentionImpl):
             )
 
         # Save TP-mode parameters (original sharded weights)
-        self.o_proj_tp_weight = self.o_proj.weight.clone().detach()
+        self.o_proj_tp_weight = self.o_proj.weight.clone().detach().contiguous()
         self.o_proj_tp_aclnn_input_scale = self.o_proj.aclnn_input_scale.clone().detach()
         self.o_proj_tp_aclnn_input_scale_reciprocal = self.o_proj.aclnn_input_scale_reciprocal.clone().detach()
         self.o_proj_tp_aclnn_input_offset = self.o_proj.aclnn_input_offset.clone().detach()
