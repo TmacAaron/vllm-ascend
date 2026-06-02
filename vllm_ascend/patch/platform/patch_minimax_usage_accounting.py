@@ -300,6 +300,7 @@ async def _wrapped_chat_completion_stream_generator(
     tokenizer,
     request_metadata: engine_protocol.RequestResponseMetadata,
     reasoning_parser=None,
+    **kwargs,
 ):
     num_choices = 1 if request.n is None else request.n
     state = _create_usage_tracking_state(num_choices, reasoning_parser)
@@ -314,6 +315,7 @@ async def _wrapped_chat_completion_stream_generator(
         tokenizer,
         request_metadata,
         reasoning_parser,
+        **kwargs,
     ):
         yield _inject_stream_usage_details(data, state)
 
@@ -332,6 +334,7 @@ async def _wrapped_chat_completion_full_generator(
     tokenizer,
     request_metadata: engine_protocol.RequestResponseMetadata,
     reasoning_parser=None,
+    **kwargs,
 ):
     num_choices = 1 if request.n is None else request.n
     state = _create_usage_tracking_state(num_choices, reasoning_parser)
@@ -346,6 +349,7 @@ async def _wrapped_chat_completion_full_generator(
         tokenizer,
         request_metadata,
         reasoning_parser,
+        **kwargs,
     )
 
     if not isinstance(response, chat_protocol.ChatCompletionResponse):
